@@ -1,7 +1,9 @@
 package market;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -24,75 +26,70 @@ public class Market {
     }
 
     private List<Product> readProducts() {
-        Scanner products = null;
-        try {
-            products = new Scanner(new FileReader("Produtos.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        Scanner preferences = null;
-        try {
-            preferences = new Scanner(new FileReader("PreferenciaDePrateleiras.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        assert products != null;
-        products.nextLine();
-        assert preferences != null;
-        preferences.nextLine();
-
         List<Product> productList = new ArrayList<>();
 
-        while (products.hasNextLine()) {
-            String lineProduct = products.nextLine();
+        try {
+            BufferedReader products = new BufferedReader(new FileReader("Produtos.txt"));
+            BufferedReader preferences = new BufferedReader(new FileReader("PreferenciaDePrateleiras.txt"));
+
+            String lineProduct = products.readLine().substring(1);
+            String linePreferences = preferences.readLine().substring(1);
+
+        while (lineProduct != null && linePreferences!= null) {
             String[] productData = lineProduct.split(";");
-            String linePreferences = preferences.nextLine();
             String[] preferencesData = linePreferences.split(";");
             int id = Integer.parseInt(productData[0]);
-            double unitaryValue = Double.parseDouble(productData[1]);
-            double weight = Double.parseDouble(productData[2]);
+            double unitaryValue = Double.parseDouble(productData[1].toString().replaceAll(",", "."));
+            double weight = Double.parseDouble(productData[2].toString().replaceAll(",", "."));
             int[] shelfPreference = new int[preferencesData.length];
             for (int i = 0; i<preferencesData.length; i++) {
                 shelfPreference[i] = Integer.parseInt(preferencesData[i]);
             }
             productList.add(new Product(id, unitaryValue, weight, shelfPreference));
+            lineProduct = products.readLine();
+            linePreferences = preferences.readLine();
         }
         products.close();
         preferences.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return productList;
     }
 
     private List<Lot> readlots() {
-        Scanner distances = null;
+        int[][] distanceMatrix = new int[products.size()+1][products.size()+1];
         try {
-            distances = new Scanner(new FileReader("Distancias.txt"));
+            BufferedReader distances = new BufferedReader(new FileReader("Distancias.txt"));
+            String line = distances.readLine();
+            int i = 0;
+            while (line != null) {
+                String[] lotDistances = line.split(" ");
+                int j=0;
+                for (String distance: lotDistances) {
+                    distanceMatrix[i][j] = Integer.parseInt(distance);
+                    j++;
+                }
+                i++;
+                line = distances.readLine();
+            }
+            distances.close();
+
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        assert distances != null;
-        distances.nextLine();
-        int[][] distanceMatrix = new int[products.size()][products.size()];
-        int i = 0;
-        while (distances.hasNextLine()) {
-            String line = distances.nextLine();
-            String[] lotDistances = line.split(" ");
-            int j=0;
-            for (String distance: lotDistances) {
-                distanceMatrix[i][j] = Integer.parseInt(distance);
-                j++;
-            }
-            i++;
-        }
-        distances.close();
 
         List<Lot> lotsList = new ArrayList<>();
         //Utilização do Algoritmo de Dijkstra para a solução do problema do caminho mínimo
         ShortestPath t = new ShortestPath(products.size());
-        for(i=1; i<=products.size(); i++){
+        for(int i=1; i<products.size(); i++){
             lotsList.add(new Lot(i, t.dijkstra(distanceMatrix, 0)[i]));
         }
 
@@ -117,6 +114,27 @@ public class Market {
         }
         requests.close();
         return requestsList;
+    }
+
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public List<Shelf> getShelves() {
+        return shelves;
+    }
+
+    public void setShelves(List<Shelf> shelves) {
+        this.shelves = shelves;
+    }
+
+    public List<Lot> getLots() {
+        return lots;
+    }
+
+    public List<Integer> getRequests() {
+        return requests;
     }
 
 }

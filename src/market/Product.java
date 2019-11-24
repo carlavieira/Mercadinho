@@ -29,4 +29,18 @@ public class Product {
     public int[] getShelfPreference(){
         return shelfPreference;
     }
+
+    @Override
+    public String toString() {
+        return "ID: "+this.id+" Valor: "+this.unitaryValue+" Peso: "+this.weight+" Preferências: "+this.printPreferences();
+    }
+
+    private String printPreferences() {
+        String preferences = "[ ";
+        for (int element : this.shelfPreference) {
+            preferences = preferences+ String.valueOf(element) + ", ";
+        }
+        preferences = preferences.substring(0, preferences.length()-2)+" ]";
+        return preferences;
+    }
 }

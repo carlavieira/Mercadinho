@@ -47,4 +47,13 @@ public class Shelf {
     public void takeProduct() {
         if (this.numProducts > 0) this.numProducts--;
     }
+
+    @Override
+    public String toString() {
+        if (taken){
+        return "ID: "+this.id+" Esta ocupada: Sim   ID do Produto: "+this.productType.getId()+" Nº de Produtos: "+this.numProducts;}
+        else{
+            return "ID: "+this.id+" Esta ocupada: Não   Nº de Produtos: "+this.numProducts;
+        }
+    }
 }

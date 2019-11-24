@@ -10,10 +10,12 @@ public class Application {
     public static void main(String[] args) {
         int op;
             System.out.println("\n###                    Mercadinho do Raul               ###");
-            System.out.println("       ====================================================");
-            System.out.println("      | Realizar Troca Por:                                |");
-            System.out.println("      |    1. Prateleira preferencial do produto           |");
-            System.out.println("      |    2. Execuçao em tempo real                       |");
+            System.out.println("       ==============================================================");
+            System.out.println("      | Realizar Troca Por:                                          |");
+            System.out.println("      |    1. Prateleira preferencial do produto                     |");
+            System.out.println("      |    2. Prateleira que está com um produto a mais tempo(FIFO)  |");
+            System.out.println("      |    2. Prateleira que está com o produto a mais tempo(FIFO)  |");
+            System.out.println("      |    2. Prateleira que está com um produto a mais tempo(FIFO)  |");
             System.out.println("      |    0. Sair                                         |");
             System.out.println("       ====================================================\n");
 
