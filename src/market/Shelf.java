@@ -31,16 +31,20 @@ public class Shelf {
     }
 
     public void fillShelf(Product product) {
-        if (!this.isTaken() || this.productType==product) {
+        if (!this.isTaken() || this.productType == product) {
             this.productType = product;
             this.taken = true;
             this.numProducts = (int) (MAX_WEIGHT / product.getWeight());
         }
     }
 
-    public void clearSheilf(){
+    public void clearSheilf() {
         this.productType = null;
         this.taken = false;
-        this.numProducts =0;
+        this.numProducts = 0;
+    }
+
+    public void takeProduct() {
+        if (this.numProducts > 0) this.numProducts--;
     }
 }

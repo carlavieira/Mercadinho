@@ -7,11 +7,11 @@ public class Product {
     private int[] shelfPreference;
 
 
-    public Product(int id, double unitaryValue, double weight, int[] shelfPreference) {
+    public Product(int id, double unitaryValue, double weight) {
         this.id = id;
         this.unitaryValue = unitaryValue;
         this.weight = weight;
-        this.shelfPreference = shelfPreference;
+        //this.shelfPreference = shelfPreference;
     }
 
     public int getId() {
