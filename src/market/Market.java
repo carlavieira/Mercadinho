@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Market {
+    private int numShelves = 10;
     private List<Product> products = new ArrayList<Product>();
     private List<Shelf> shelves = new ArrayList<Shelf>();
     private List<Lot> lots = new ArrayList<Lot>();
@@ -15,7 +16,7 @@ public class Market {
 
     public Market() {
         this.products = readProducts();
-        for (int i = 1; i >= 10; i++) {
+        for (int i = 1; i <= this.numShelves; i++) {
             this.shelves.add(new Shelf(i));
         }
         this.lots = readlots();
@@ -30,19 +31,37 @@ public class Market {
             e.printStackTrace();
         }
 
+        Scanner preferences = null;
+        try {
+            preferences = new Scanner(new FileReader("PreferenciaDePrateleiras.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         assert products != null;
         products.nextLine();
+        assert preferences != null;
+        preferences.nextLine();
+
         List<Product> productList = new ArrayList<>();
 
         while (products.hasNextLine()) {
-            String line = products.nextLine();
-            String[] productData = line.split(";");
+            String lineProduct = products.nextLine();
+            String[] productData = lineProduct.split(";");
+            String linePreferences = preferences.nextLine();
+            String[] preferencesData = linePreferences.split(";");
             int id = Integer.parseInt(productData[0]);
             double unitaryValue = Double.parseDouble(productData[1]);
             double weight = Double.parseDouble(productData[2]);
-            productList.add(new Product(id, unitaryValue, weight));
+            int[] shelfPreference = new int[preferencesData.length];
+            for (int i = 0; i<preferencesData.length; i++) {
+                shelfPreference[i] = Integer.parseInt(preferencesData[i]);
+            }
+            productList.add(new Product(id, unitaryValue, weight, shelfPreference));
         }
         products.close();
+        preferences.close();
+
         return productList;
     }
 
