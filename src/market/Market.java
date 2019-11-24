@@ -143,8 +143,6 @@ public class Market {
     public void changeByShelfPreference() {
         //Para todos os pedidos faca:
         for (Integer requestProdId : this.requests) {
-            printSituation();
-            System.out.println("Pedido de produto: "+requestProdId);
             //Se existe alguma prateleira com aquele ID de produto:
             if (productAvailable(requestProdId)){
                 //Pega a prateleira com o Id do produto pedido:
@@ -170,9 +168,8 @@ public class Market {
                 shelf.fillShelf(products.get(requestProdId-1));
                 takeProduct(shelf);
             }
-            printSituation();
-            System.out.println();
             }
+        printResult();
         }
 
         private void refill(Shelf shelf) {
@@ -233,7 +230,8 @@ public class Market {
         }
 
     public void printResult() {
-        System.out.println("Número de vezes que produto não foi encontrado na prateleira: "+this.failures);
+        int porc = (int)(((double)this.failures / (double) this.requests.size())*100);
+        System.out.println("Número de vezes que produto não foi encontrado em alguma prateleira: "+this.failures+" ("+porc+"%)");
         System.out.println("Distância total percorrida: "+this.distanceTotal);
 
     }

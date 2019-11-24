@@ -5,11 +5,14 @@ import util.Teclado;
 
 public class Application {
 
-
     public static void main(String[] args) {
-        int op;
         System.out.println("\n###                             Mercadinho do Raul                      ###");
-        System.out.println("       ===================================================================");
+        menu();
+    }
+
+    private static void menu(){
+        int op;
+        System.out.println("\n       ===================================================================");
         System.out.println("      | Realizar Troca Por:                                               |");
         System.out.println("      |    1. Prateleira preferencial do produto                          |");
         System.out.println("      |    2. Prateleira que está com um produto a mais tempo (FIFO)      |");
@@ -18,14 +21,33 @@ public class Application {
         System.out.println("      |    0. Sair                                                        |");
         System.out.println("       ===================================================================\n");
 
-        System.out.print("Informe uma opcao: ");
+        System.out.print("Informe uma opcão: ");
         op = Teclado.readInt();
         System.out.print("\n");
         switch (op) {
             case 1:
-                Market market = new Market();
-                market.changeByShelfPreference();
-                market.printResult();
+                new Market().changeByShelfPreference();
+                menu();
+                break;
+            case 2:
+                //new Market().changeByBlahblahblah();
+                menu();
+                break;
+            case 3:
+                //new Market().changeByBlahblahblah();
+                menu();
+                break;
+            case 4:
+                //new Market().changeByBlahblahblah();
+                menu();
+                break;
+            case 0:
+                System.out.println("Finalizando sistema.");
+                break;
+            default:
+                System.out.println("Por favor informe uma opcao válida.");
+                menu();
+                break;
         }
     }
 }
