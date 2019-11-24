@@ -32,7 +32,7 @@ public class Product {
 
     @Override
     public String toString() {
-        return "ID: "+this.id+" Valor: "+this.unitaryValue+" Peso: "+this.weight+" Preferências: "+this.printPreferences();
+        return String.valueOf(this.id);
     }
 
     private String printPreferences() {

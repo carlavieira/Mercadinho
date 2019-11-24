@@ -143,21 +143,14 @@ public class Market {
     public void changeByShelfPreference() {
         //Para todos os pedidos faca:
         for (Integer requestProdId : this.requests) {
+            printSituation();
+            System.out.println("Pedido de produto: "+requestProdId);
             //Se existe alguma prateleira com aquele ID de produto:
             if (productAvailable(requestProdId)){
                 //Pega a prateleira com o Id do produto pedido:
                 Shelf shelf = shelfWithProductAvailable(requestProdId);
                 //Tira um produto
-                shelf.takeProduct();
-                //Se era o último produto:
-                if (shelf.getNumProducts()==0){
-                    //Vai para o lote do produto
-                    goToLot(shelf.getTypeProduct().getId());
-                    //Volta lote do produto
-                    goToLot(shelf.getTypeProduct().getId());
-                    //Enche a prateleira
-                    shelf.fillShelf(shelf.getTypeProduct());
-                }
+                takeProduct(shelf);
             } //Page not found / Não tem produto pedido na prateleira
             else {
                 //Aumenta o numero de falhas
@@ -173,10 +166,32 @@ public class Market {
                 //Volta para o mercadinho
                 goToLot(requestProdId);
                 //Enche a prateleira com o produto novo
-                shelves.get(idShelf-1).fillShelf(products.get(requestProdId-1));
+                Shelf shelf = shelves.get(idShelf-1);
+                shelf.fillShelf(products.get(requestProdId-1));
+                takeProduct(shelf);
             }
+            printSituation();
+            System.out.println();
             }
         }
+
+        private void refill(Shelf shelf) {
+            //Vai para o lote do produto
+            goToLot(shelf.getTypeProduct().getId());
+            //Volta lote do produto
+            goToLot(shelf.getTypeProduct().getId());
+            //Enche a prateleira
+            shelf.fillShelf(shelf.getTypeProduct());
+        }
+
+        private void takeProduct(Shelf shelf){
+            shelf.takeProduct();
+            //Se era o último item do produto, reabastece.
+            if (shelf.getNumProducts()==0){
+                refill(shelf);
+            }
+        }
+
 
     private void goToLot(int id) {
         for (Lot lot: this.lots) {
@@ -221,5 +236,12 @@ public class Market {
         System.out.println("Número de vezes que produto não foi encontrado na prateleira: "+this.failures);
         System.out.println("Distância total percorrida: "+this.distanceTotal);
 
+    }
+
+    public void printSituation(){
+        for (Shelf shelf: this.shelves) {
+            System.out.print(shelf.getId()+" Prod:"+shelf.getTypeProduct()+" Qnt:"+shelf.getNumProducts()+" * ");
+        }
+        System.out.println();
     }
 }
