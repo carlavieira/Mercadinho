@@ -16,7 +16,6 @@ public class Test {
         for (Shelf shelf: shelves) {
             System.out.println(shelf);
         }
-        shelves.get(4).fillShelf(products.get(1));
         for (Shelf shelf: shelves) {
             System.out.println(shelf);
         }

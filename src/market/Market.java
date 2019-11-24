@@ -1,5 +1,6 @@
 package market;
 
+import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,7 +14,9 @@ public class Market {
     private List<Shelf> shelves = new ArrayList<Shelf>();
     private List<Lot> lots = new ArrayList<Lot>();
     private List<Integer> requests = new ArrayList<Integer>();
-
+    private int distanceTotal;
+    private int failures;
+    private int[][] distanceMatrix;
 
     public Market() {
         this.products = readProducts();
@@ -22,6 +25,8 @@ public class Market {
         }
         this.lots = readlots();
         this.requests = readRequests();
+        this.distanceTotal = 0;
+        this.failures =0;
     }
 
     private List<Product> readProducts() {
@@ -83,7 +88,7 @@ public class Market {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        this.distanceMatrix = distanceMatrix;
 
         List<Lot> lotsList = new ArrayList<>();
         //Utilização do Algoritmo de Dijkstra para a solução do problema do caminho mínimo
@@ -135,4 +140,86 @@ public class Market {
         return requests;
     }
 
+    public void changeByShelfPreference() {
+        //Para todos os pedidos faca:
+        for (Integer requestProdId : this.requests) {
+            //Se existe alguma prateleira com aquele ID de produto:
+            if (productAvailable(requestProdId)){
+                //Pega a prateleira com o Id do produto pedido:
+                Shelf shelf = shelfWithProductAvailable(requestProdId);
+                //Tira um produto
+                shelf.takeProduct();
+                //Se era o último produto:
+                if (shelf.getNumProducts()==0){
+                    //Vai para o lote do produto
+                    goToLot(shelf.getTypeProduct().getId());
+                    //Volta lote do produto
+                    goToLot(shelf.getTypeProduct().getId());
+                    //Enche a prateleira
+                    shelf.fillShelf(shelf.getTypeProduct());
+                }
+            } //Page not found / Não tem produto pedido na prateleira
+            else {
+                //Aumenta o numero de falhas
+                failures++;
+                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
+                int idShelf = idPriorityShelf(products.get(requestProdId-1).getShelfPreference());
+                //Esvazia prateleira
+                shelves.get(idShelf-1).clearSheilf();
+                //Vai para o lote do produto velho devolver os produtos
+                goToLot(idShelf);
+                //Vai do lote do produto velho para o do produto novo recolher os produtos
+                goBetweenLots(idShelf, requestProdId);
+                //Volta para o mercadinho
+                goToLot(requestProdId);
+                //Enche a prateleira com o produto novo
+                shelves.get(idShelf-1).fillShelf(products.get(requestProdId-1));
+            }
+            }
+        }
+
+    private void goToLot(int id) {
+        for (Lot lot: this.lots) {
+            if (lot.getProductId()==id){
+                distanceTotal= distanceTotal + lot.getDistanceFromMarket();
+            }
+        }
+    }
+
+    private void goBetweenLots(int idOld, int idNew) {
+        ShortestPath t = new ShortestPath(products.size());
+        distanceTotal = distanceTotal + t.dijkstra(this.distanceMatrix, idOld-1)[idNew-1];
+    }
+
+    private int idPriorityShelf(int[] preferences) {
+        int indexMax = 1;
+        for (int i =1; i<preferences.length; i++){
+            if (preferences[i] > preferences[indexMax])
+                indexMax = i;
+        }
+        return indexMax;
+    }
+
+    private Shelf shelfWithProductAvailable(Integer requestProdId) {
+        for (Shelf shelf: shelves) {
+            if (shelf.isTaken())
+            if (shelf.getTypeProduct().getId() == requestProdId) return shelf;
+        }
+        return null;
+    }
+
+    private boolean productAvailable(Integer requestProdId) {
+        for (Shelf shelf: shelves) {
+            if (shelf.isTaken()) if (shelf.getTypeProduct().getId() == requestProdId){
+                return true;
+            }
+        }
+         return false;
+        }
+
+    public void printResult() {
+        System.out.println("Número de vezes que produto não foi encontrado na prateleira: "+this.failures);
+        System.out.println("Distância total percorrida: "+this.distanceTotal);
+
+    }
 }
