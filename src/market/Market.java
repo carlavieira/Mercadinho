@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Market {
     private int numShelves = 10;
@@ -97,22 +96,21 @@ public class Market {
     }
 
     private List<Integer> readRequests() {
-        Scanner requests = null;
-        try {
-            requests = new Scanner(new FileReader("Pedidos.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        assert requests != null;
-        requests.nextLine();
         List<Integer> requestsList = new ArrayList<>();
 
-        while (requests.hasNextLine()) {
-            int prodRequest = Integer.parseInt(requests.nextLine());
-            requestsList.add(prodRequest);
+        try {
+            BufferedReader requests = new BufferedReader(new FileReader("Pedidos.txt"));
+            String line = requests.readLine();
+            while (line != null) {
+                requestsList.add(Integer.parseInt(line));
+                line = requests.readLine();
+            }
+            requests.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        requests.close();
         return requestsList;
     }
 

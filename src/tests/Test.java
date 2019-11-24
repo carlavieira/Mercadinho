@@ -1,8 +1,6 @@
 package tests;
 
-import market.Market;
-import market.Product;
-import market.Shelf;
+import market.*;
 
 import java.util.List;
 
@@ -21,6 +19,17 @@ public class Test {
         shelves.get(4).fillShelf(products.get(1));
         for (Shelf shelf: shelves) {
             System.out.println(shelf);
+        }
+        List<Lot> lots = market.getLots();
+        for (Lot lot: lots) {
+            System.out.println(lot);
+        }
+
+        List<Integer> requests = market.getRequests();
+        int i = 1;
+        for (Integer element: requests) {
+            System.out.println(i+": "+element);
+            i++;
         }
 
 

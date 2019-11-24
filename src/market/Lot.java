@@ -16,4 +16,9 @@ public class Lot {
     public int getDistanceFromMarket() {
         return distanceFromMarket;
     }
+
+    @Override
+    public String toString() {
+        return "ID do Produto no Lote: "+this.productId+" Distância Mínima: "+this.distanceFromMarket;
+    }
 }
