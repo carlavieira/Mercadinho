@@ -18,6 +18,7 @@ public class Application {
         System.out.println("      |    2. Prateleira que está com um produto a mais tempo (FIFO)      |");
         System.out.println("      |    3. Prateleira que está com produto menos recentemente comprado |");
         System.out.println("      |    4. Prateleira que está com um produto de lote menos distante   |");
+        System.out.println("      |    5. Relatório final                                             |");
         System.out.println("      |    0. Sair                                                        |");
         System.out.println("       ===================================================================\n");
 
@@ -30,7 +31,7 @@ public class Application {
                 menu();
                 break;
             case 2:
-                //new Market().changeByBlahblahblah();
+                //new Market().changeByFIFO();
                 menu();
                 break;
             case 3:
@@ -39,6 +40,19 @@ public class Application {
                 break;
             case 4:
                 //new Market().changeByBlahblahblah();
+                menu();
+                break;
+            case 5:
+                System.out.println("**** Relatório Final *****");
+                System.out.println("\nTroca por: Prateleira preferencial do produto");
+                new Market().changeByShelfPreference();
+//                System.out.println("\nTroca por: X");
+//                new Market().changeBy();
+//                System.out.println("\nTroca por: Y");
+//                new Market().changeBy();
+//                System.out.println("\nTroca por: Z");
+//                new Market().changeByShelf();
+                System.out.println();
                 menu();
                 break;
             case 0:

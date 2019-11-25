@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Market {
-    private int numShelves = 10;
     private List<Product> products = new ArrayList<Product>();
     private List<Shelf> shelves = new ArrayList<Shelf>();
     private List<Lot> lots = new ArrayList<Lot>();
     private List<Integer> requests = new ArrayList<Integer>();
+    private int numShelves = 10;
     private int distanceTotal;
     private int failures;
     private int[][] distanceMatrix;
