@@ -1,10 +1,10 @@
 package market;
 
-import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,7 @@ public class Market {
     private int distanceTotal;
     private int failures;
     private int[][] distanceMatrix;
+    ArrayDeque<Shelf> lastProductsSold = new ArrayDeque<>();
 
     public Market() {
         this.products = readProducts();
@@ -241,5 +242,66 @@ public class Market {
             System.out.print(shelf.getId()+" Prod:"+shelf.getTypeProduct()+" Qnt:"+shelf.getNumProducts()+" * ");
         }
         System.out.println();
+    }
+
+    public void changeByFIFO() {
+        //Para todos os pedidos faca:
+        for (Integer requestProdId : this.requests) {
+
+            //Se existe alguma prateleira com aquele ID de produto:
+            if (productAvailable(requestProdId)) {
+                //Pega a prateleira com o Id do produto pedido:
+                Shelf shelf = shelfWithProductAvailable(requestProdId);
+                //Tira um produto
+                takeProduct(shelf);
+
+                //se a prateleira estiver no array, remove ele de onde estiver e coloca na primeira posicao
+                if (lastProductsSold.contains(shelf)) {
+                    lastProductsSold.removeFirstOccurrence(shelf);
+                }
+                lastProductsSold.addFirst(shelf);
+
+            } //Page not found / Não tem produto pedido na prateleira
+            else {
+                //Aumenta o numero de falhas
+                failures++;
+                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
+                Shelf lastShelf = lastProductsSold.pollLast();
+                //aqui ele pega a ultima prateleira da fila, e necessario fazer essa checagem pois nem sempre havera itens
+                //na prateleira oque causa null pointer excepetion
+                if (lastShelf != null) {
+                    int idShelf = lastShelf.getId();
+                    //Esvazia prateleira
+                    shelves.get(idShelf - 1).clearSheilf();
+                    //Vai para o lote do produto velho devolver os produtos
+                    goToLot(idShelf);
+                    //Vai do lote do produto velho para o do produto novo recolher os produtos
+                    goBetweenLots(idShelf, requestProdId);
+                    //Volta para o mercadinho
+                    goToLot(requestProdId);
+                    //Enche a prateleira com o produto novo
+                    Shelf shelf = shelves.get(idShelf - 1);
+                    shelf.fillShelf(products.get(requestProdId - 1));
+                    takeProduct(shelf);
+                } else {
+                    //se nao houver segue com o algoritmo original
+                    int idShelf = idPriorityShelf(products.get(requestProdId - 1).getShelfPreference());
+                    //Esvazia prateleira
+                    shelves.get(idShelf - 1).clearSheilf();
+                    //Vai para o lote do produto velho devolver os produtos
+                    goToLot(idShelf);
+                    //Vai do lote do produto velho para o do produto novo recolher os produtos
+                    goBetweenLots(idShelf, requestProdId);
+                    //Volta para o mercadinho
+                    goToLot(requestProdId);
+                    //Enche a prateleira com o produto novo
+                    Shelf shelf = shelves.get(idShelf - 1);
+                    shelf.fillShelf(products.get(requestProdId - 1));
+                    takeProduct(shelf);
+
+                }
+            }
+        }
+        printResult();
     }
 }
