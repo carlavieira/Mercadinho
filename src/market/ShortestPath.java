@@ -4,74 +4,66 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-class ShortestPath {
-    // A utility function to find the vertex with minimum distance value,
-    // from the set of vertices not yet included in shortest path tree
-    static int V;
+public class ShortestPath {
+    // Acha o vértice com menor distância de um conjunto de vértices ainda não na árvore de caminho mínimo
+    static int size;
 
-    public ShortestPath(int V) {
-        this.V= V;
+    public ShortestPath(int size) {
+        this.size= size;
     }
 
 
     int minDistance(int dist[], Boolean sptSet[]) {
-        // Initialize min value
-        int min = Integer.MAX_VALUE, min_index = -1;
+        // Valor mínimo iniciando como "infinito" (maior valor possível) e índice -1;
+        int min = Integer.MAX_VALUE;
+        int min_index = -1;
 
-        for (int v = 0; v < V; v++)
+        for (int v = 0; v < size; v++)
+            //Se v ainda não é caminho mínimo e a distância de v até a origem é menor que o mínimo
             if (sptSet[v] == false && dist[v] <= min) {
+                //min recebe v
                 min = dist[v];
                 min_index = v;
             }
-
+        //retorna o indice do vertice com menor valor até a origem naquema iteração
         return min_index;
     }
 
-    // A utility function to print the constructed distance array
 
-    // Function that implements Dijkstra's single source shortest path
-    // algorithm for a graph represented using adjacency matrix
-    // representation
-    int[] dijkstra(int graph[][], int src) {
-        int dist[] = new int[V]; // The output array. dist[i] will hold
-        // the shortest distance from src to i
+    public int[] dijkstra(int graph[][], int src) {
+        //dist[i] guardará a menor distância entre a origem para i.
+        int dist[] = new int[size];
 
-        // sptSet[i] will true if vertex i is included in shortest
-        // path tree or shortest distance from src to i is finalized
-        Boolean sptSet[] = new Boolean[V];
+        // Vetor booleano o qual responde se o vertice i está na árvore de menor caminho ou não
+        Boolean sptSet[] = new Boolean[size];
 
-        // Initialize all distances as INFINITE and stpSet[] as false
-        for (int i = 0; i < V; i++) {
+        //inicia colocando todas as distâncias como infinitas e sptSet como falso.
+        for (int i = 0; i < size; i++) {
             dist[i] = Integer.MAX_VALUE;
             sptSet[i] = false;
         }
 
-        // Distance of source vertex from itself is always 0
+        // Distancia da origem para ela mesma é 0.
         dist[src] = 0;
 
-        // Find shortest path for all vertices
-        for (int count = 0; count < V - 1; count++) {
-            // Pick the minimum distance vertex from the set of vertices
-            // not yet processed. u is always equal to src in first
-            // iteration.
+        // Achar o caminho mínimo para todos os vertices
+        for (int count = 0; count < size - 1; count++) {
+            // Pega a distância mínima de um vértice até o conjunto de vértices não processados.
+            // Na primeira iteração u sempre será a origem.
             int u = minDistance(dist, sptSet);
 
-            // Mark the picked vertex as processed
+            // Marcar id u como processado.
             sptSet[u] = true;
 
-            // Update dist value of the adjacent vertices of the
-            // picked vertex.
-            for (int v = 0; v < V; v++)
-
-                // Update dist[v] only if is not in sptSet, there is an
-                // edge from u to v, and total weight of path from src to
-                // v through u is smaller than current value of dist[v]
-                if (!sptSet[v] && graph[u][v] != 0 && graph[u][v] != -1 &&
+            // Atualiza os valores dos demais vértices em relação ao novo elemento na árvore de caminho mínimo
+            for (int v = 0; v < size; v++)
+                //Se tiver um caminho de v para a origem, passando por u, que seja menor que a distância de v para a origem, substitui valores
+                if (!sptSet[v] &&  graph[u][v] != -1 &&
                         dist[u] != Integer.MAX_VALUE && dist[u] + graph[u][v] < dist[v])
                     dist[v] = dist[u] + graph[u][v];
         }
 
-        // print the constructed distance array
+        // retorna vetor dist com os caminhos mínimos entre a origem e cada vértice
         return dist;
     }
 }
