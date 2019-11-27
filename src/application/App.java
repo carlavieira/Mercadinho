@@ -3,7 +3,7 @@ package application;
 import market.Market;
 import util.Teclado;
 
-public class Application {
+public class App {
 
     public static void main(String[] args) {
         System.out.println("\n###                             Mercadinho do Raul                      ###");

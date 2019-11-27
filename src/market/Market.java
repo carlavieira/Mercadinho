@@ -14,9 +14,10 @@ public class Market {
     private List<Lot> lots = new ArrayList<Lot>();
     private List<Integer> requests = new ArrayList<Integer>();
     private int numShelves = 10;
+    private int[][] distanceMatrix;
     private int distanceTotal;
     private int failures;
-    private int[][] distanceMatrix;
+
 
     public Market() {
         this.products = readProducts();
