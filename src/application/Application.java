@@ -31,7 +31,7 @@ public class Application {
                 menu();
                 break;
             case 2:
-                //new Market().changeByFIFO();
+                new Market().changeByFIFO();
                 menu();
                 break;
             case 3:
@@ -39,7 +39,7 @@ public class Application {
                 menu();
                 break;
             case 4:
-                //new Market().changeByBlahblahblah();
+                new Market().changeByShelfDistance();
                 menu();
                 break;
             case 5:
