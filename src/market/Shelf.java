@@ -5,6 +5,8 @@ public class Shelf {
     private boolean taken;
     private Product productType;
     private int numProducts;
+    private boolean r;
+    private boolean[] time;
     private static final Double MAX_WEIGHT = 10.0;
 
     public Shelf(int id) {
@@ -12,6 +14,8 @@ public class Shelf {
         this.taken = false;
         this.productType = null;
         this.numProducts = 0;
+        this.r = false;
+        this.time = new boolean[10];
     }
 
     public int getId() {
@@ -55,5 +59,21 @@ public class Shelf {
         else{
             return "ID: "+this.id+" Esta ocupada: Não   Nº de Produtos: "+this.numProducts;
         }
+    }
+
+    public boolean isR() {
+        return r;
+    }
+
+    public void setR(boolean r) {
+        this.r = r;
+    }
+
+    public boolean[] getTime() {
+        return time;
+    }
+
+    public void setTime(boolean[] time) {
+        this.time = time;
     }
 }

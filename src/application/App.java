@@ -18,7 +18,8 @@ public class App {
         System.out.println("      |    2. Prateleira que está com um produto a mais tempo (FIFO)      |");
         System.out.println("      |    3. Prateleira que está com produto menos recentemente comprado |");
         System.out.println("      |    4. Prateleira que está com um produto de lote menos distante   |");
-        System.out.println("      |    5. Relatório final                                             |");
+        System.out.println("      |    5. Prateleira que está com um produto menos vendido até então  |");
+        System.out.println("      |    6. Relatório final                                             |");
         System.out.println("      |    0. Sair                                                        |");
         System.out.println("       ===================================================================\n");
 
@@ -43,15 +44,25 @@ public class App {
                 menu();
                 break;
             case 5:
+                new Market().changeByLessSold();
+                menu();
+                break;
+            case 6:
                 System.out.println("**** Relatório Final *****");
                 System.out.println("\nTroca por: Prateleira preferencial do produto");
                 new Market().changeByShelfPreference();
                 System.out.println("\nTroca por: Primeiro produto vendido sera o primeiro a ser removido");
                 new Market().changeByFIFO();
-                System.out.println("\nTroca por: Produto que nao foi vendido recentemente");
+                System.out.println("\nTroca por: Produto que não foi vendido recentemente");
                 new Market().chageByNotReacentlyBought();
                 System.out.println("\nTroca por: Prateleira que está com um produto de lote menos distante");
                 new Market().changeByShelfDistance();
+                System.out.println("\nTroca por: Prateleira que está com um produto menos vendido até então");
+                new Market().changeByLessSold();
+                System.out.println("\nTroca por: Prateleira com produto que não foi vendido recentemente (NRU)");
+                new Market().changeByNRU();
+                System.out.println("\nTroca por: Prateleira com produto que não foi vendido recentemente (Envelhecimento)");
+                new Market().changeByAging();
                 System.out.println();
                 menu();
                 break;

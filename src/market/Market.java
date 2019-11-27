@@ -17,6 +17,8 @@ public class Market {
     private int[][] distanceMatrix;
     private int distanceTotal;
     private int failures;
+    private int[] sales;
+    private int counter;
 
 
     public Market() {
@@ -29,6 +31,7 @@ public class Market {
         IntStream.range(0, shelves.size()).forEach(i -> shelves.get(i).fillShelf(products.get(i)));
         this.distanceTotal = 0;
         this.failures = 0;
+        this.sales = new int[products.size()+1];
     }
 
     private List<Product> readProducts() {
@@ -181,6 +184,8 @@ public class Market {
 
     private void takeProduct(Shelf shelf) {
         shelf.takeProduct();
+        sales[shelf.getTypeProduct().getId()]++;
+        shelf.setR(true);
         //Se era o último item do produto, reabastece.
         if (shelf.getNumProducts() == 0) {
             refill(shelf);
@@ -360,4 +365,162 @@ public class Market {
         }
         return idShelf;
     }
+
+    public void changeByLessSold() {
+        //Para todos os pedidos faca:
+        for (Integer requestProdId : this.requests) {
+            //Se existe alguma prateleira com aquele ID de produto:
+            if (productAvailable(requestProdId)) {
+                //Pega a prateleira com o Id do produto pedido:
+                Shelf shelf = shelfWithProductAvailable(requestProdId);
+                //Tira um produto
+                takeProduct(shelf);
+            } //Page not found / Não tem produto pedido na prateleira
+            else {
+                //Aumenta o numero de falhas
+                failures++;
+                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
+                int idShelf = shelfIdWithLeastSoldProduct();
+                //Esvazia prateleira
+                shelves.get(idShelf - 1).clearSheilf();
+                //Vai para o lote do produto velho devolver os produtos
+                goToLot(idShelf);
+                //Vai do lote do produto velho para o do produto novo recolher os produtos
+                goBetweenLots(idShelf, requestProdId);
+                //Volta para o mercadinho
+                goToLot(requestProdId);
+                //Enche a prateleira com o produto novo
+                Shelf shelf = shelves.get(idShelf - 1);
+                shelf.fillShelf(products.get(requestProdId - 1));
+                takeProduct(shelf);
+            }
+        }
+        printResult();
+    }
+
+    private int shelfIdWithLeastSoldProduct(){
+        int max = 0;
+        int idShelf = 0;
+        for (Shelf shelf: shelves) {
+            if (shelf.isTaken()){
+                if (this.sales[shelf.getTypeProduct().getId()]>max){
+                    max = this.sales[shelf.getTypeProduct().getId()];
+                    idShelf = shelf.getId();
+                }
+            }
+        }
+        return idShelf;
+    }
+
+    public void changeByNRU() {
+        //Para todos os pedidos faca:
+        for (Integer requestProdId : this.requests) {
+            //Se existe alguma prateleira com aquele ID de produto:
+            if (productAvailable(requestProdId)) {
+                //Pega a prateleira com o Id do produto pedido:
+                Shelf shelf = shelfWithProductAvailable(requestProdId);
+                //Tira um produto
+                takeProduct(shelf);
+            } //Page not found / Não tem produto pedido na prateleira
+            else {
+                //Aumenta o numero de falhas
+                failures++;
+                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
+                int idShelf = shelfIdWithLeastNRUClass();
+                //Esvazia prateleira
+                shelves.get(idShelf - 1).clearSheilf();
+                //Vai para o lote do produto velho devolver os produtos
+                goToLot(idShelf);
+                //Vai do lote do produto velho para o do produto novo recolher os produtos
+                goBetweenLots(idShelf, requestProdId);
+                //Volta para o mercadinho
+                goToLot(requestProdId);
+                //Enche a prateleira com o produto novo
+                Shelf shelf = shelves.get(idShelf - 1);
+                shelf.fillShelf(products.get(requestProdId - 1));
+                takeProduct(shelf);
+            }
+            counter++;
+            checkEpoch();
+        }
+        printResult();
+    }
+
+    private void checkEpoch(){
+        if (counter==10){
+            counter=0;
+            for (Shelf shelf: shelves) {
+                for (int i = (shelf.getTime().length-2); i>=0; i--) {
+                    shelf.getTime()[i+1]=shelf.getTime()[i];
+                }
+                shelf.getTime()[0]=shelf.isR();
+                shelf.setR(false);
+            }
+        }
+    }
+
+    private int shelfIdWithLeastNRUClass(){
+        for (Shelf shelf: shelves) if (!shelf.isR()) return shelf.getId();
+        return 0;
+        }
+
+    public void changeByAging() {
+        //Para todos os pedidos faca:
+        for (Integer requestProdId : this.requests) {
+            //Se existe alguma prateleira com aquele ID de produto:
+            if (productAvailable(requestProdId)) {
+                //Pega a prateleira com o Id do produto pedido:
+                Shelf shelf = shelfWithProductAvailable(requestProdId);
+                //Tira um produto
+                takeProduct(shelf);
+            } //Page not found / Não tem produto pedido na prateleira
+            else {
+                //Aumenta o numero de falhas
+                failures++;
+                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
+                int idShelf = shelfIdWithLeastRTime();
+                //Esvazia prateleira
+                shelves.get(idShelf - 1).clearSheilf();
+                //Vai para o lote do produto velho devolver os produtos
+                goToLot(idShelf);
+                //Vai do lote do produto velho para o do produto novo recolher os produtos
+                goBetweenLots(idShelf, requestProdId);
+                //Volta para o mercadinho
+                goToLot(requestProdId);
+                //Enche a prateleira com o produto novo
+                Shelf shelf = shelves.get(idShelf - 1);
+                shelf.fillShelf(products.get(requestProdId - 1));
+                takeProduct(shelf);
+            }
+            counter++;
+            checkEpoch();
+        }
+        printResult();
+    }
+
+    private int shelfIdWithLeastRTime(){
+        long min = Long.MAX_VALUE;
+        int idShelf = 0;
+        int[] timeQArray = new int[10];
+        int j = 0;
+        for (Shelf shelf: shelves){
+            int timeQ = 0;
+            for (int i = 0; i<shelf.getTime().length; i++) {
+                if (shelf.getTime()[i]) timeQ = timeQ + 10 * (shelf.getTime().length - i - 1);
+            }
+            timeQArray[j]=timeQ;
+            j++;
+        }
+        for (Shelf shelf: shelves)
+            if (!shelf.isR()) {
+                for (int i = 0; i<shelf.getTime().length; i++) {
+                    if (timeQArray[i]<min){
+                        min = timeQArray[i];
+                        idShelf = i+1;
+                    }
+                }
+        }
+        return idShelf;
+    }
+
 }
