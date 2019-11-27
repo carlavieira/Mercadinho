@@ -31,27 +31,27 @@ public class Application {
                 menu();
                 break;
             case 2:
-                //new Market().changeByFIFO();
+                new Market().changeByFIFO();
                 menu();
                 break;
             case 3:
-                //new Market().changeByBlahblahblah();
+                new Market().chageByNotReacentlyBought();
                 menu();
                 break;
             case 4:
-                //new Market().changeByBlahblahblah();
+                new Market().changeByShelfDistance();
                 menu();
                 break;
             case 5:
                 System.out.println("**** Relatório Final *****");
                 System.out.println("\nTroca por: Prateleira preferencial do produto");
                 new Market().changeByShelfPreference();
-//                System.out.println("\nTroca por: X");
-//                new Market().changeBy();
-//                System.out.println("\nTroca por: Y");
-//                new Market().changeBy();
+                System.out.println("\nTroca por: Primeiro produto vendido sera o primeiro a ser removido");
+                new Market().changeByFIFO();
+                System.out.println("\nTroca por: Produto que nao foi vendido recentemente");
+                new Market().chageByNotReacentlyBought();
 //                System.out.println("\nTroca por: Z");
-//                new Market().changeByShelf();
+//                new Market().changeByShelfDistance();
                 System.out.println();
                 menu();
                 break;
