@@ -194,6 +194,7 @@ public class Market {
 
 
     private void goToLot(int id) {
+        int distance = 0;
         for (Lot lot : this.lots) {
             if (lot.getProductId() == id) {
                 distanceTotal = distanceTotal + lot.getDistanceFromMarket();
@@ -201,10 +202,16 @@ public class Market {
         }
     }
 
-    private void goBetweenLots(int idOld, int idNew) {
-        ShortestPath t = new ShortestPath(products.size());
-        distanceTotal = distanceTotal + t.dijkstra(this.distanceMatrix, idOld - 1)[idNew - 1];
+    private int distance(int lotIdSource, int lotIdDestiny) {
+        ShortestPath t = new ShortestPath(products.size()+1);
+        return t.dijkstra(this.distanceMatrix, lotIdSource )[lotIdDestiny];
     }
+
+    private void goBetweenLots(int idOld, int idNew) {
+        ShortestPath t = new ShortestPath(products.size()+1);
+        distanceTotal = distanceTotal + t.dijkstra(this.distanceMatrix, idOld)[idNew];
+    }
+
 
     private int idPriorityShelf(int[] preferences) {
         int indexMax = 1;
@@ -333,7 +340,7 @@ public class Market {
                 failures++;
                 // ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai
 
-                int idShelf = idProjectWithShortestDistance();
+                int idShelf = idProjectWithShortestDistance(requestProdId);
 
                 // Esvazia prateleira
                 shelves.get(idShelf - 1).clearSheilf();
@@ -352,13 +359,14 @@ public class Market {
         printResult();
     }
 
-    private int idProjectWithShortestDistance(){
+    private int idProjectWithShortestDistance(int idProduct){
         int min = Integer.MAX_VALUE;
         int idShelf = 0;
         for (Shelf shelf: shelves) {
             if (shelf.isTaken()){
                 if (lots.get(shelf.getTypeProduct().getId()).getDistanceFromMarket()<min){
-                    min = lots.get(shelf.getTypeProduct().getId()).getDistanceFromMarket();
+                    int idShelfActual = shelf.getTypeProduct().getId();
+                    min = distance(0, idShelfActual) + distance(idShelfActual, idProduct) + distance(idProduct, 0);
                     idShelf = shelf.getId();
                 }
             }
