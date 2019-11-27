@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -137,38 +138,6 @@ public class Market {
         return requests;
     }
 
-    public void changeByShelfPreference() {
-        //Para todos os pedidos faca:
-        for (Integer requestProdId : this.requests) {
-            //Se existe alguma prateleira com aquele ID de produto:
-            if (productAvailable(requestProdId)) {
-                //Pega a prateleira com o Id do produto pedido:
-                Shelf shelf = shelfWithProductAvailable(requestProdId);
-                //Tira um produto
-                takeProduct(shelf);
-            } //Page not found / Não tem produto pedido na prateleira
-            else {
-                //Aumenta o numero de falhas
-                failures++;
-                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
-                int idShelf = idPriorityShelf(products.get(requestProdId - 1).getShelfPreference());
-                //Esvazia prateleira
-                shelves.get(idShelf - 1).clearSheilf();
-                //Vai para o lote do produto velho devolver os produtos
-                goToLot(idShelf);
-                //Vai do lote do produto velho para o do produto novo recolher os produtos
-                goBetweenLots(idShelf, requestProdId);
-                //Volta para o mercadinho
-                goToLot(requestProdId);
-                //Enche a prateleira com o produto novo
-                Shelf shelf = shelves.get(idShelf - 1);
-                shelf.fillShelf(products.get(requestProdId - 1));
-                takeProduct(shelf);
-            }
-        }
-        printResult();
-    }
-
     private void refill(Shelf shelf) {
         //Vai para o lote do produto
         goToLot(shelf.getTypeProduct().getId());
@@ -240,44 +209,15 @@ public class Market {
         System.out.println();
     }
 
-    public void changeByFIFO() {
+    public void changeBy(String bestShelfIdType){
+
+        /* FIFO */
         Queue<Shelf> shelvesQueue = new LinkedList<>();
         shelvesQueue.addAll(shelves);
-        //Para todos os pedidos faca:
-        for (Integer requestProdId : this.requests) {
-            //Se existe alguma prateleira com aquele ID de produto:
-            if (productAvailable(requestProdId)) {
-                //Pega a prateleira com o Id do produto pedido:
-                Shelf shelf = shelfWithProductAvailable(requestProdId);
-                //Tira um produto
-                takeProduct(shelf);
-            } //Page not found / Não tem produto pedido na prateleira
-            else {
-                //Aumenta o numero de falhas
-                failures++;
-                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
-                int idShelf = shelvesQueue.remove().getId();
-                //Esvazia prateleira
-                shelves.get(idShelf - 1).clearSheilf();
-                //Vai para o lote do produto velho devolver os produtos
-                goToLot(idShelf);
-                //Vai do lote do produto velho para o do produto novo recolher os produtos
-                goBetweenLots(idShelf, requestProdId);
-                //Volta para o mercadinho
-                goToLot(requestProdId);
-                //Enche a prateleira com o produto novo
-                Shelf shelf = shelves.get(idShelf - 1);
-                shelf.fillShelf(products.get(requestProdId - 1));
-                takeProduct(shelf);
-                shelvesQueue.add(shelf);
-            }
-        }
-        printResult();
-    }
 
-    public void chageByNotReacentlyBought() {
+        /* NotReacentlyBought */
         List<Shelf> shelvesList = new LinkedList<>(shelves);
-        //Para todos os pedidos faca:
+
         for (Integer requestProdId : this.requests) {
             //Se existe alguma prateleira com aquele ID de produto:
             if (productAvailable(requestProdId)) {
@@ -285,14 +225,27 @@ public class Market {
                 Shelf shelf = shelfWithProductAvailable(requestProdId);
                 //Tira um produto
                 takeProduct(shelf);
-                shelvesList.remove(shelf);
-                shelvesList.add(shelf);
+                if (bestShelfIdType == "bestShelfIdByNotReacentlyBought") {
+                    shelvesList.remove(shelf);
+                    shelvesList.add(shelf);
+                }
             } //Page not found / Não tem produto pedido na prateleira
             else {
                 //Aumenta o numero de falhas
                 failures++;
-                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
-                int idShelf = shelvesList.remove(0).getId();
+
+                //Método de substituição para escolher o melhor ShelfID
+                int idShelf = 0;
+
+                if (bestShelfIdType == "bestShelfIdByPreference")
+                    idShelf = idPriorityShelf(products.get(requestProdId - 1).getShelfPreference());
+                else if (bestShelfIdType == "bestShelfIdByFIFO")
+                    idShelf = shelvesQueue.remove().getId();
+                else if (bestShelfIdType == "bestShelfIdByNotReacentlyBought")
+                    idShelf = shelvesList.remove(0).getId();
+                else if (bestShelfIdType == "bestShelfIdByDistance")
+                    idShelf = idProjectWithShortestDistance();
+
                 //Esvazia prateleira
                 shelves.get(idShelf - 1).clearSheilf();
                 //Vai para o lote do produto velho devolver os produtos
@@ -305,42 +258,12 @@ public class Market {
                 Shelf shelf = shelves.get(idShelf - 1);
                 shelf.fillShelf(products.get(requestProdId - 1));
                 takeProduct(shelf);
-                shelvesList.add(shelf);
-            }
-        }
-
-        printResult();
-    }
-
-    public void changeByShelfDistance() {
-        // Para todos os pedidos faca:
-        for (Integer requestProdId : this.requests) {
-            // Se existe alguma prateleira com aquele ID de produto:
-            if (productAvailable(requestProdId)) {
-                // Pega a prateleira com o Id do produto pedido:
-                Shelf shelf = shelfWithProductAvailable(requestProdId);
-                // Tira um produto
-                takeProduct(shelf);
-            } // Page not found / NÃ£o tem produto pedido na prateleira
-            else {
-                // Aumenta o numero de falhas
-                failures++;
-                // ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai
-
-                int idShelf = idProjectWithShortestDistance();
-
-                // Esvazia prateleira
-                shelves.get(idShelf - 1).clearSheilf();
-                // Vai para o lote do produto velho devolver os produtos
-                goToLot(idShelf);
-                // Vai do lote do produto velho para o do produto novo recolher os produtos
-                goBetweenLots(idShelf, requestProdId);
-                // Volta para o mercadinho
-                goToLot(requestProdId);
-                // Enche a prateleira com o produto novo
-                Shelf shelf = shelves.get(idShelf - 1);
-                shelf.fillShelf(products.get(requestProdId - 1));
-                takeProduct(shelf);
+                if (bestShelfIdType == "bestShelfIdByFIFO") {
+                    shelvesQueue.add(shelf);
+                }
+                if (bestShelfIdType == "bestShelfIdByNotReacentlyBought") {
+                    shelvesList.add(shelf);
+                }
             }
         }
         printResult();
