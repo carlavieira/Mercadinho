@@ -91,11 +91,11 @@ public class Market {
 
         List<Lot> lotsList = new ArrayList<>();
         //Utilização do Algoritmo de Dijkstra para a solução do problema do caminho mínimo
-        ShortestPath t = new ShortestPath(products.size());
-        for (int i = 1; i < products.size(); i++) {
-            lotsList.add(new Lot(i, t.dijkstra(distanceMatrix, 0)[i]));
+        ShortestPath t = new ShortestPath(products.size()+1);
+        int[] vector = t.dijkstra(distanceMatrix, 0);
+        for (int i = 0; i < distanceMatrix.length; i++) {
+            lotsList.add(new Lot(i,vector[i]));
         }
-
         return lotsList;
     }
 
@@ -327,40 +327,7 @@ public class Market {
                 failures++;
                 // ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai
 
-                Map<Integer, Integer> productsAndShelves = new HashMap<>();
-                Map<Integer, Integer> productsAndDistances = new HashMap<>();
-                int smaller = 0, smallerId = 0;
-
-                for (Shelf shelf : shelves) {
-                    if(shelf.getTypeProduct()!=null)
-                        productsAndShelves.put(shelf.getTypeProduct().getId(), shelf.getId());
-                }
-
-                for (Lot lot : lots) {
-                    if(lot.getProductId() != 0){
-                        int id = (lot).getProductId();
-                        if (productsAndShelves.containsKey(id)) {
-                            if (productsAndDistances.size() == 0) {
-                                smaller = lot.getDistanceFromMarket();
-                            }
-                            productsAndDistances.put(id, lot.getDistanceFromMarket());
-                        }
-                        }
-                }
-
-                for (Map.Entry<Integer, Integer> distance : productsAndDistances.entrySet()) {
-                    if (distance.getValue() < smaller) {
-                        smaller = distance.getValue();
-                        smallerId = distance.getKey();
-                    }
-                }
-                System.out.println(smallerId);
-
-                int idShelf = productsAndShelves.get(smallerId);
-
-                // substituir (no caso a com a prioridade maior do produto requisitado)
-                // int idShelf =
-                // idPriorityShelf(products.get(requestProdId-1).getShelfPreference());
+                int idShelf = idProjectWithShortestDistance();
 
                 // Esvazia prateleira
                 shelves.get(idShelf - 1).clearSheilf();
@@ -377,5 +344,19 @@ public class Market {
             }
         }
         printResult();
+    }
+
+    private int idProjectWithShortestDistance(){
+        int min = Integer.MAX_VALUE;
+        int idShelf = 0;
+        for (Shelf shelf: shelves) {
+            if (shelf.isTaken()){
+                if (lots.get(shelf.getTypeProduct().getId()).getDistanceFromMarket()<min){
+                    min = lots.get(shelf.getTypeProduct().getId()).getDistanceFromMarket();
+                    idShelf = shelf.getId();
+                }
+            }
+        }
+        return idShelf;
     }
 }

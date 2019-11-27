@@ -50,8 +50,8 @@ public class Application {
                 new Market().changeByFIFO();
                 System.out.println("\nTroca por: Produto que nao foi vendido recentemente");
                 new Market().chageByNotReacentlyBought();
-//                System.out.println("\nTroca por: Z");
-//                new Market().changeByShelfDistance();
+                System.out.println("\nTroca por: Prateleira que está com um produto de lote menos distante");
+                new Market().changeByShelfDistance();
                 System.out.println();
                 menu();
                 break;
