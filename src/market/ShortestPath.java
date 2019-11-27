@@ -13,7 +13,7 @@ public class ShortestPath {
     }
 
 
-    int minDistance(int dist[], Boolean sptSet[]) {
+    private int minDistance(int dist[], Boolean sptSet[]) {
         // Valor mínimo iniciando como "infinito" (maior valor possível) e índice -1;
         int min = Integer.MAX_VALUE;
         int min_index = -1;

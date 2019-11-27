@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Market {
     private List<Product> products = new ArrayList<Product>();
@@ -23,6 +25,7 @@ public class Market {
         }
         this.lots = readlots();
         this.requests = readRequests();
+        IntStream.range(0, shelves.size()).forEach(i -> shelves.get(i).fillShelf(products.get(i)));
         this.distanceTotal = 0;
         this.failures = 0;
     }
@@ -81,8 +84,6 @@ public class Market {
             }
             distances.close();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,8 +110,6 @@ public class Market {
                 line = requests.readLine();
             }
             requests.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -273,6 +272,42 @@ public class Market {
                 shelvesQueue.add(shelf);
             }
         }
+        printResult();
+    }
+
+    public void chageByNotReacentlyBought() {
+        List<Shelf> shelvesList = new LinkedList<>(shelves);
+        //Para todos os pedidos faca:
+        for (Integer requestProdId : this.requests) {
+            //Se existe alguma prateleira com aquele ID de produto:
+            if (productAvailable(requestProdId)) {
+                //Pega a prateleira com o Id do produto pedido:
+                Shelf shelf = shelfWithProductAvailable(requestProdId);
+                //Tira um produto
+                takeProduct(shelf);
+                shelvesList.remove(shelf);
+                shelvesList.add(shelf);
+            } //Page not found / Não tem produto pedido na prateleira
+            else {
+                //Aumenta o numero de falhas
+                failures++;
+                //ATENCAO AQUI QUE ESCOLHE COMO SUBSTITUI. Escolhe o id da prateleira que vai substituir (no caso a com a prioridade maior do produto requisitado)
+                int idShelf = shelvesList.remove(0).getId();
+                //Esvazia prateleira
+                shelves.get(idShelf - 1).clearSheilf();
+                //Vai para o lote do produto velho devolver os produtos
+                goToLot(idShelf);
+                //Vai do lote do produto velho para o do produto novo recolher os produtos
+                goBetweenLots(idShelf, requestProdId);
+                //Volta para o mercadinho
+                goToLot(requestProdId);
+                //Enche a prateleira com o produto novo
+                Shelf shelf = shelves.get(idShelf - 1);
+                shelf.fillShelf(products.get(requestProdId - 1));
+                takeProduct(shelf);
+                shelvesList.add(shelf);
+            }
+        }
 
         printResult();
     }
@@ -297,18 +332,20 @@ public class Market {
                 int smaller = 0, smallerId = 0;
 
                 for (Shelf shelf : shelves) {
-                    productsAndShelves.put(shelf.getTypeProduct().getId(), shelf.getId());
+                    if(shelf.getTypeProduct()!=null)
+                        productsAndShelves.put(shelf.getTypeProduct().getId(), shelf.getId());
                 }
 
                 for (Lot lot : lots) {
-                    int id = ((Lot) lot).getProductId();
-                    if (productsAndShelves.containsKey(id)) {
-                        if (productsAndDistances.size() == 0) {
-                            smaller = lot.getDistanceFromMarket();
+                    if(lot.getProductId() != 0){
+                        int id = (lot).getProductId();
+                        if (productsAndShelves.containsKey(id)) {
+                            if (productsAndDistances.size() == 0) {
+                                smaller = lot.getDistanceFromMarket();
+                            }
+                            productsAndDistances.put(id, lot.getDistanceFromMarket());
                         }
-                        productsAndDistances.put(id, lot.getDistanceFromMarket());
-
-                    }
+                        }
                 }
 
                 for (Map.Entry<Integer, Integer> distance : productsAndDistances.entrySet()) {
@@ -317,6 +354,7 @@ public class Market {
                         smallerId = distance.getKey();
                     }
                 }
+                System.out.println(smallerId);
 
                 int idShelf = productsAndShelves.get(smallerId);
 
